@@ -22,6 +22,11 @@ from lib.model.loss import *
 from lib.data.dataset_action import NTURGBD
 from lib.model.model_action import ActionNet
 
+
+from pynvml import *
+nvmlInit()
+hDevice = nvmlDeviceGetHandleByIndex(0)
+
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
@@ -74,6 +79,16 @@ def validate(test_loader, model, criterion):
                        loss=losses, top1=top1, top5=top5))
     return losses.avg, top1.avg, top5.avg
 
+def print_gpu_memory():
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    f = r-a  # free inside reserved
+    print('total:',t, ' reserved:', r, ' alloc:',a, ' free:', f)
+    info = nvmlDeviceGetMemoryInfo(hDevice)
+    print(f'total    : {info.total}')
+    print(f'free     : {info.free}')
+    print(f'used     : {info.used}')
 
 def train_with_config(args, opts):
     print(args)
@@ -106,6 +121,7 @@ def train_with_config(args, opts):
         model_params = model_params + parameter.numel()
     print('INFO: Trainable parameter count:', model_params)
     print('Loading dataset...')
+    print_gpu_memory()
     trainloader_params = {
           'batch_size': args.batch_size,
           'shuffle': True,
@@ -128,7 +144,10 @@ def train_with_config(args, opts):
 
     train_loader = DataLoader(ntu60_xsub_train, **trainloader_params)
     test_loader = DataLoader(ntu60_xsub_val, **testloader_params)
-        
+    
+    print('...loaded')
+    print_gpu_memory()
+
     chk_filename = os.path.join(opts.checkpoint, "latest_epoch.bin")
     if os.path.exists(chk_filename):
         opts.resume = chk_filename
@@ -175,6 +194,9 @@ def train_with_config(args, opts):
                 if torch.cuda.is_available():
                     batch_gt = batch_gt.cuda()
                     batch_input = batch_input.cuda()
+                print(batch_input.shape)
+                print(batch_input.type)
+                print_gpu_memory()
                 output = model(batch_input) # (N, num_classes)
                 optimizer.zero_grad()
                 loss_train = criterion(output, batch_gt)
