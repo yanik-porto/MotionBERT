@@ -40,6 +40,7 @@ def parse_args():
     parser.add_argument('-e', '--evaluate', default='', type=str, metavar='FILENAME', help='checkpoint to evaluate (file name)')
     parser.add_argument('-freq', '--print_freq', default=100)
     parser.add_argument('-ms', '--selection', default='latest_epoch.bin', type=str, metavar='FILENAME', help='checkpoint to finetune (file name)')
+    parser.add_argument('-gpulog', '--log_gpu_memory', default=False, action='store_true', help='log gpu memory usage')
     opts = parser.parse_args()
     return opts
 
@@ -121,7 +122,8 @@ def train_with_config(args, opts):
         model_params = model_params + parameter.numel()
     print('INFO: Trainable parameter count:', model_params)
     print('Loading dataset...')
-    print_gpu_memory()
+    if opts.log_gpu_memory:
+        print_gpu_memory()
     trainloader_params = {
           'batch_size': args.batch_size,
           'shuffle': True,
@@ -146,7 +148,8 @@ def train_with_config(args, opts):
     test_loader = DataLoader(ntu60_xsub_val, **testloader_params)
     
     print('...loaded')
-    print_gpu_memory()
+    if opts.log_gpu_memory:
+        print_gpu_memory()
 
     chk_filename = os.path.join(opts.checkpoint, "latest_epoch.bin")
     if os.path.exists(chk_filename):
@@ -196,7 +199,8 @@ def train_with_config(args, opts):
                     batch_input = batch_input.cuda()
                 print(batch_input.shape)
                 print(batch_input.type)
-                print_gpu_memory()
+                if opts.log_gpu_memory:
+                    print_gpu_memory()
                 output = model(batch_input) # (N, num_classes)
                 optimizer.zero_grad()
                 loss_train = criterion(output, batch_gt)
