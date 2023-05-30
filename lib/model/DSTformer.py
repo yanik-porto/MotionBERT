@@ -299,7 +299,7 @@ class DSTformer(nn.Module):
 #            self.pre_logits = nn.Identity()
         self.pre_logits = nn.Identity()
 
-#        self.head = nn.Linear(dim_rep, dim_out) if dim_out > 0 else nn.Identity()            
+#        self.head = nn.Linear(dim_rep, dim_out) if dim_out > 0 else nn.Identity()
         self.head = nn.Identity()
 
         self.temp_embed = nn.Parameter(torch.zeros(1, maxlen, 1, dim_feat))
