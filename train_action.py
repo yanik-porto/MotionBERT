@@ -69,7 +69,7 @@ def validate(test_loader, model, criterion):
             batch_time.update(time.time() - end)
             end = time.time()
 
-            if (idx+1) % opts.print_freq == 0:
+            if (idx+1) % int(opts.print_freq) == 0:
                 print('Test: [{0}/{1}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
@@ -208,15 +208,16 @@ def train_with_config(args, opts):
                 optimizer.step()    
                 batch_time.update(time.time() - end)
                 end = time.time()
-            if (idx + 1) % opts.print_freq == 0:
-                print('Train: [{0}][{1}/{2}]\t'
-                      'BT {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                      'DT {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                      'loss {loss.val:.3f} ({loss.avg:.3f})\t'
-                      'Acc@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-                       epoch, idx + 1, len(train_loader), batch_time=batch_time,
-                       data_time=data_time, loss=losses_train, top1=top1))
-                sys.stdout.flush()
+
+                if (idx + 1) % int(opts.print_freq) == 0:
+                    print('Train: [{0}][{1}/{2}]\t'
+                        'BT {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                        'DT {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                        'loss {loss.val:.3f} ({loss.avg:.3f})\t'
+                        'Acc@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
+                        epoch, idx + 1, len(train_loader), batch_time=batch_time,
+                        data_time=data_time, loss=losses_train, top1=top1))
+                    sys.stdout.flush()
                 
             test_loss, test_top1, test_top5 = validate(test_loader, model, criterion)
                 
