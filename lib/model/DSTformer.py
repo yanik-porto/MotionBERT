@@ -290,14 +290,18 @@ class DSTformer(nn.Module):
                 st_mode="stage_ts")
             for i in range(depth)])
         self.norm = norm_layer(dim_feat)
-        if dim_rep:
-            self.pre_logits = nn.Sequential(OrderedDict([
-                ('fc', nn.Linear(dim_feat, dim_rep)),
-                ('act', nn.Tanh())
-            ]))
-        else:
-            self.pre_logits = nn.Identity()
-        self.head = nn.Linear(dim_rep, dim_out) if dim_out > 0 else nn.Identity()            
+#        if dim_rep:
+#            self.pre_logits = nn.Sequential(OrderedDict([
+#                ('fc', nn.Linear(dim_feat, dim_rep)),
+#                ('act', nn.Tanh())
+#            ]))
+#        else:
+#            self.pre_logits = nn.Identity()
+        self.pre_logits = nn.Identity()
+
+#        self.head = nn.Linear(dim_rep, dim_out) if dim_out > 0 else nn.Identity()            
+        self.head = nn.Identity()
+
         self.temp_embed = nn.Parameter(torch.zeros(1, maxlen, 1, dim_feat))
         self.pos_embed = nn.Parameter(torch.zeros(1, num_joints, dim_feat))
         trunc_normal_(self.temp_embed, std=.02)
