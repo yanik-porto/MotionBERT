@@ -11,6 +11,7 @@ from lib.utils.learning import *
 from lib.utils.utils_data import flip_data
 from lib.data.dataset_wild import WildDetDataset
 from lib.utils.vismo import render_and_save
+from lib.model.model_action import ActionNet
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -35,7 +36,7 @@ if torch.cuda.is_available():
     model = nn.DataParallel(model)
     model = model.cuda()
 
-print('Loading checkpoint', chk_filename)
-checkpoint = torch.load(chk_filename, map_location=lambda storage, loc: storage)
+print('Loading checkpoint', opts.evaluate)
+checkpoint = torch.load(opts.evaluate, map_location=lambda storage, loc: storage)
 model.load_state_dict(checkpoint['model'], strict=True)
 model.eval()
