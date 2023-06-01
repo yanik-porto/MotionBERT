@@ -40,3 +40,16 @@ print('Loading checkpoint', opts.evaluate)
 checkpoint = torch.load(opts.evaluate, map_location=lambda storage, loc: storage)
 model.load_state_dict(checkpoint['model'], strict=True)
 model.eval()
+
+vid = imageio.get_reader(opts.vid_path,  'ffmpeg')
+fps_in = vid.get_meta_data()['fps']
+vid_size = vid.get_meta_data()['size']
+os.makedirs(opts.out_path, exist_ok=True)
+
+wild_dataset = WildDetDataset(opts.json_path, clip_len=opts.clip_len, scale_range=[1,1], focus=opts.focus)
+
+test_loader = DataLoader(wild_dataset, **testloader_params)
+
+with torch.no_grad():
+    for batch_input in tqdm(test_loader):
+        output = model(batch_input)
