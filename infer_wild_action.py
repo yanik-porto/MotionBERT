@@ -12,6 +12,8 @@ from lib.utils.utils_data import flip_data
 from lib.data.dataset_wild import WildDetDataset
 from lib.utils.vismo import render_and_save
 from lib.model.model_action import ActionNet
+from configs.action.classes_NTU60 import ntu_categories
+from tabulate import tabulate
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -63,3 +65,7 @@ test_loader = DataLoader(wild_dataset, **testloader_params)
 with torch.no_grad():
     for batch_input in tqdm(test_loader):
         output = model(batch_input)
+        perc, pred = output.topk(max((1,5)), 1, True, True)
+        perc_classes = [str(round(val, 2)) for val in perc.cpu().numpy()[0]]
+        pred_classes = [ntu_categories[classe] for classe in pred.cpu().numpy()[0]]
+        print(tabulate([pred_classes, perc_classes], tablefmt="pretty", floatfmt=".2f"))
