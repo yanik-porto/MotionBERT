@@ -41,6 +41,16 @@ checkpoint = torch.load(opts.evaluate, map_location=lambda storage, loc: storage
 model.load_state_dict(checkpoint['model'], strict=True)
 model.eval()
 
+testloader_params = {
+        'batch_size': 1,
+        'shuffle': False,
+        'num_workers': 8,
+        'pin_memory': True,
+        'prefetch_factor': 4,
+        'persistent_workers': True,
+        'drop_last': False
+}
+
 vid = imageio.get_reader(opts.vid_path,  'ffmpeg')
 fps_in = vid.get_meta_data()['fps']
 vid_size = vid.get_meta_data()['size']
