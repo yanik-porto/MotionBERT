@@ -22,11 +22,6 @@ from lib.model.loss import *
 from lib.data.dataset_action import NTURGBD
 from lib.model.model_action import ActionNet
 
-
-from pynvml import *
-nvmlInit()
-hDevice = nvmlDeviceGetHandleByIndex(0)
-
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
@@ -79,17 +74,6 @@ def validate(test_loader, model, criterion):
                        idx, len(test_loader), batch_time=batch_time,
                        loss=losses, top1=top1, top5=top5))
     return losses.avg, top1.avg, top5.avg
-
-def print_gpu_memory():
-    t = torch.cuda.get_device_properties(0).total_memory
-    r = torch.cuda.memory_reserved(0)
-    a = torch.cuda.memory_allocated(0)
-    f = r-a  # free inside reserved
-    print('total:',t, ' reserved:', r, ' alloc:',a, ' free:', f)
-    info = nvmlDeviceGetMemoryInfo(hDevice)
-    print(f'total    : {info.total}')
-    print(f'free     : {info.free}')
-    print(f'used     : {info.used}')
 
 def train_with_config(args, opts):
     print(args)
