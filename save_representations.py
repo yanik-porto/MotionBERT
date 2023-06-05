@@ -46,8 +46,8 @@ def save_rep(args, opts):
         print_gpu_memory()
 
     model_backbone = load_backbone(args)
-    print('Loading backbone', args.pretrained)
-    checkpoint = torch.load(args.pretrained, map_location=lambda storage, loc: storage)['model_pos']
+    print('Loading backbone', opts.pretrained)
+    checkpoint = torch.load(opts.pretrained, map_location=lambda storage, loc: storage)['model_pos']
     model_backbone = load_pretrained_weights(model_backbone, checkpoint)
 
     if torch.cuda.is_available():
