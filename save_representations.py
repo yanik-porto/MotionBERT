@@ -10,10 +10,15 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="configs/pretrain.yaml", help="Path to the config file.")
     parser.add_argument('-p', '--pretrained', default='checkpoint', type=str, metavar='PATH', help='pretrained checkpoint directory')
+    parser.add_argument('-gpulog', '--log_gpu_memory', default=False, action='store_true', help='log gpu memory usage')
     opts = parser.parse_args()
     return opts
 
 def save_rep(args, opts):
+    print('Loading dataset...')
+    if opts.log_gpu_memory:
+        print_gpu_memory()
+
     trainloader_params = {
           'batch_size': args.batch_size,
           'shuffle': True,
@@ -36,10 +41,17 @@ def save_rep(args, opts):
     train_loader = DataLoader(ntu60_xsub_train, **trainloader_params)
     test_loader = DataLoader(ntu60_xsub_val, **testloader_params)
 
+    print('...loaded')
+    if opts.log_gpu_memory:
+        print_gpu_memory()
+
     model_backbone = load_backbone(args)
     if torch.cuda.is_available():
         model_backbone = nn.DataParallel(model_backbone)
         model_backbone = model_backbone.cuda()
+
+    if opts.log_gpu_memory:
+        print_gpu_memory()
 
     model_backbone.eval()
     for idx, (batch_input, batch_gt) in tqdm(enumerate(train_loader)):
@@ -47,6 +59,9 @@ def save_rep(args, opts):
         if torch.cuda.is_available():
             batch_input = batch_input.cuda()
             batch_gt = batch_gt.cuda()
+
+        if opts.log_gpu_memory:
+            print_gpu_memory()
 
         N, M, T, J, C = batch_input.shape
         batch_input = batch_input.reshape(N*M, T, J, C)
