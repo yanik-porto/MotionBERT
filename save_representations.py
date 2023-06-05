@@ -9,7 +9,7 @@ from lib.utils.tools import *
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="configs/pretrain.yaml", help="Path to the config file.")
-    parser.add_argument('-p', '--pretrained', default='checkpoint', type=str, metavar='PATH', help='pretrained checkpoint directory')
+    parser.add_argument('-p', '--pretrained', default='checkpoint', type=str, metavar='PATH', help='pretrained checkpoint file')
     parser.add_argument('-gpulog', '--log_gpu_memory', default=False, action='store_true', help='log gpu memory usage')
     opts = parser.parse_args()
     return opts
@@ -46,6 +46,10 @@ def save_rep(args, opts):
         print_gpu_memory()
 
     model_backbone = load_backbone(args)
+    print('Loading backbone', args.pretrained)
+    checkpoint = torch.load(args.pretrained, map_location=lambda storage, loc: storage)['model_pos']
+    model_backbone = load_pretrained_weights(model_backbone, checkpoint)
+
     if torch.cuda.is_available():
         model_backbone = nn.DataParallel(model_backbone)
         model_backbone = model_backbone.cuda()
