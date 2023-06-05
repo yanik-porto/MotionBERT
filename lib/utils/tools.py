@@ -5,7 +5,6 @@ import yaml
 from easydict import EasyDict as edict
 from typing import Any, IO
 from pynvml import *
-import torch
 
 ROOT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 
@@ -74,11 +73,6 @@ def read_pkl(data_url):
     return content
 
 def print_gpu_memory():
-    t = torch.cuda.get_device_properties(0).total_memory
-    r = torch.cuda.memory_reserved(0)
-    a = torch.cuda.memory_allocated(0)
-    f = r-a  # free inside reserved
-    print('total:',t, ' reserved:', r, ' alloc:',a, ' free:', f)
     info = nvmlDeviceGetMemoryInfo(hDevice)
     print(f'total    : {info.total}')
     print(f'free     : {info.free}')
