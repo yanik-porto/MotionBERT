@@ -326,7 +326,7 @@ class DSTformer(nn.Module):
         self.dim_out = dim_out
         self.head = nn.Linear(self.dim_feat, dim_out) if dim_out > 0 else nn.Identity()
 
-    def forward(self, x, return_rep=False):   
+    def forward(self, x, return_rep=False):
         B, F, J, C = x.shape
         x = x.reshape(-1, J, C)
         BF = x.shape[0]
