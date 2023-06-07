@@ -44,13 +44,12 @@ def save_dataset(dataloader, model_backbone, pickle_file, max_batch):
 
         N, M, T, J, C = batch_input.shape
         batch_input = batch_input.reshape(N*M, T, J, C)
-        print('input: ', batch_input.shape)
         batch_rep = model_backbone(batch_input, return_rep=True)
         # batch_rep = model_backbone.get_representation(batch_input)
-        print('output: ', batch_rep.shape)
 
         batch_rep_cpu = batch_rep.cpu().detach().numpy()
-        datarep.append(batch_rep_cpu)
+        batch_gt_cpu = batch_gt.cpu().detach().numpy()
+        datarep.append({'rep':batch_rep_cpu, 'gt':batch_gt_cpu})
         batch_rep = None
 
         if idx == max_batch:
@@ -76,6 +75,8 @@ def save_train_rep(args, opts, model_backbone):
     ntu60_xsub_train = NTURGBD(data_path=data_path, data_split=args.data_split+'_train', n_frames=args.clip_len, random_move=args.random_move, scale_range=args.scale_range_train)
     train_loader = DataLoader(ntu60_xsub_train, **trainloader_params)
 
+    print("train_loader contains ", len(train_loader))
+
     print('...loaded')
     if opts.log_gpu_memory:
         print_gpu_memory()
@@ -99,6 +100,8 @@ def save_test_rep(args, opts, model_backbone):
     data_path = 'data/action/%s.pkl' % args.dataset
     ntu60_xsub_val = NTURGBD(data_path=data_path, data_split=args.data_split+'_val', n_frames=args.clip_len, random_move=False, scale_range=args.scale_range_test)
     test_loader = DataLoader(ntu60_xsub_val, **testloader_params)
+
+    print("test_loader contains ", len(test_loader))
 
     print('...loaded')
     if opts.log_gpu_memory:
