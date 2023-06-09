@@ -1,4 +1,5 @@
 import argparse
+import os
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -27,10 +28,10 @@ def load_model(args, opts):
 
     return model_backbone
 
-def save_dataset(dataloader, model_backbone, pickle_file, max_batch):
+def save_dataset(dataloader, model_backbone, save_folder, max_batch):
     print('INFO: Running on {} batches'.format(len(dataloader)))
 
-    datarep = []
+    os.makedirs(save_folder, exist_ok=False)
 
     model_backbone.eval()
     for idx, (batch_input, batch_gt) in tqdm(enumerate(dataloader)):
@@ -49,14 +50,14 @@ def save_dataset(dataloader, model_backbone, pickle_file, max_batch):
 
         batch_rep_cpu = batch_rep.cpu().detach().numpy()
         batch_gt_cpu = batch_gt.cpu().detach().numpy()
-        datarep.append({'rep':batch_rep_cpu, 'gt':batch_gt_cpu})
+        pickle_path = os.path.join(save_folder, str(idx) + '.pkl')
+        pickle_data = {'rep':batch_rep_cpu, 'gt':batch_gt_cpu}
+        with open(pickle_path, 'wb') as f:
+            pickle.dump(pickle_data, f)
         batch_rep = None
 
         if idx == max_batch:
             break
-    
-    with open(pickle_file, 'wb') as f:
-        pickle.dump(datarep, f)
 
 def save_train_rep(args, opts, model_backbone):
     print('Loading dataset...')
@@ -81,7 +82,7 @@ def save_train_rep(args, opts, model_backbone):
     if opts.log_gpu_memory:
         print_gpu_memory()
 
-    save_dataset(train_loader, model_backbone, 'train_data.pickle', 100)
+    save_dataset(train_loader, model_backbone, 'data/train_data', 100)
 
 
 def save_test_rep(args, opts, model_backbone):
@@ -107,7 +108,7 @@ def save_test_rep(args, opts, model_backbone):
     if opts.log_gpu_memory:
         print_gpu_memory()
 
-    save_dataset(test_loader, model_backbone, 'test_data.pickle', 10)
+    save_dataset(test_loader, model_backbone, 'data/test_data', 10)
 
 if __name__ == "__main__":
     opts = parse_args()
