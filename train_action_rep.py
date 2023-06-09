@@ -59,9 +59,8 @@ def train_with_config(args, opts):
           'prefetch_factor': 4,
           'persistent_workers': True
     }
-    data_path = 'data/action/%s.pkl' % args.dataset
 
-    ntu60_xsub_train = MotionDatasetRep(file_path=data_path)
+    ntu60_xsub_train = MotionDatasetRep(file_path=args.dataset)
     train_loader = DataLoader(ntu60_xsub_train, **trainloader_params)
     print('...loaded')
     if opts.log_gpu_memory:

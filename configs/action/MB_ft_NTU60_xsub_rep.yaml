@@ -24,7 +24,7 @@ hidden_dim: 2048
 dropout_ratio: 0.5
 
 # Data
-dataset: train_data
+dataset: data/action/train_data
 data_split: xsub
 clip_len: 243
 action_classes: 60
